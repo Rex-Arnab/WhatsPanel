@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import axios from "axios";
 import { SocketType } from "dgram";
 import { useEffect, useState } from "react";
@@ -36,6 +37,7 @@ function Home() {
     });
 
     socket?.on("message", (message: any) => {
+      console.log(message);
       console.log(`Received message: ${message.body}`);
       setMessages((prevMessages) => {
         const msg: Message = {
@@ -79,19 +81,29 @@ function Home() {
         <h2>Messages</h2>
         <div className="flex flex-col gap-5">
           {messages.map((message, index) => (
-            <div
-              key={message.createdAt}
-              className="border my-2 flex items-center justify-around p-5 bg-white shadow">
-              <div>{message.body}</div>
-              <div>{message.notifyName}</div>
-              <div>{message.from}</div>
-              <div>{message.deviceType}</div>
-              <div>{message.isForwarded}</div>
-              <div>{message.isStatus}</div>
-              <div>{message.createdAt}</div>
-              <div>{message.type}</div>
-              <div>{message.to}</div>
-              {/* <div>{message.id}</div> */}
+            <div key={message.createdAt} className="grid">
+              <div
+                className={cn(
+                  "border flex flex-col md:flex-row md:items-center md:justify-around p-5 shadow gap-5",
+                  message.fromMe ? "bg-white" : "bg-purple-700 text-white",
+                  message.from.includes("@g.us") && "bg-green-700"
+                )}>
+                <div>
+                  {message.from}({message.notifyName})
+                </div>
+                {message.deviceType !== "android" && (
+                  <div>{message.deviceType}</div>
+                )}
+                <div>{message.isForwarded ? "Forwarded" : "Not Forwarded"}</div>
+                <div>{message.isStatus ? "Status" : "Message"}</div>
+                <div>{new Date(message.createdAt).toDateString()}</div>
+                {message.type !== "chat" && <div>{message.type}</div>}
+                <div>{message.to}</div>
+                {/* <div>{message.id}</div> */}
+              </div>
+              <div className="flex items-center bg-black text-white p-5">
+                {message.body}
+              </div>
             </div>
           ))}
         </div>
